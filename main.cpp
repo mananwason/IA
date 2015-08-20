@@ -23,6 +23,10 @@ int complementImg (Mat img1);
 
 int DivideImgConst (Mat img1);
 
+int MultiplyImgConst (Mat img1);
+
+int SubImgConst (Mat img1);
+
 int main( int argc, char** argv )
 {
 int i, j, k;
@@ -52,11 +56,12 @@ waitKey(0);
 destroyWindow(argv[2]);
 
 int test;
-test = DivideImgConst(img1);
+test = SubImgConst(img1);
 
 return 0;
 }
 
+// ADD TWO IMAGES
 int addImg 	(Mat img1, Mat img2)
 {
 int i, j, k;
@@ -84,6 +89,7 @@ destroyWindow("A+B");
 return 0;
 }
 
+// ADD CONSTANT TO TWO IMAGES
 int addConstantImg 	(Mat img1)
 {
 int i, j, k;
@@ -198,6 +204,54 @@ for (i = 0; i<s1.height; i++)
     for (j = 0; j<s1.width; j++)
         {
         k = img1.at<uchar>(i, j) / 50;
+        if (k < 0) {k=0;}
+        img3.at<uchar>(i, j) = k;
+        }
+    }
+
+namedWindow( "A+B", WINDOW_AUTOSIZE );
+imshow( "A+B", img3);
+waitKey(0);
+destroyWindow("A+B");
+return 0;
+}
+
+int MultiplyImgConst (Mat img1)
+{
+int i, j, k;
+Size s1;
+s1 = img1.size();
+
+Mat img3 = Mat::ones(s1.height, s1.width, CV_8UC1);
+for (i = 0; i<s1.height; i++)
+    {
+    for (j = 0; j<s1.width; j++)
+        {
+        k = img1.at<uchar>(i, j) * 50;
+        if (k > 255) {k=255;}
+        img3.at<uchar>(i, j) = k;
+        }
+    }
+
+namedWindow( "A+B", WINDOW_AUTOSIZE );
+imshow( "A+B", img3);
+waitKey(0);
+destroyWindow("A+B");
+return 0;
+}
+
+int SubImgConst (Mat img1)
+{
+int i, j, k;
+Size s1;
+s1 = img1.size();
+
+Mat img3 = Mat::ones(s1.height, s1.width, CV_8UC1);
+for (i = 0; i<s1.height; i++)
+    {
+    for (j = 0; j<s1.width; j++)
+        {
+        k = img1.at<uchar>(i, j) * 50;
         if (k < 0) {k=0;}
         img3.at<uchar>(i, j) = k;
         }
