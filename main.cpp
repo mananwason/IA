@@ -55,8 +55,11 @@ imshow(argv[2], img2);
 waitKey(0);
 destroyWindow(argv[2]);
 
-int test;
-test = SubImgConst(img1);
+addImg(img1, img2);
+
+absDiff(img1, img2);
+
+SubImgConst(img1);
 
 return 0;
 }
@@ -107,13 +110,14 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "A+k", WINDOW_AUTOSIZE );
+imshow( "A+k", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("A+k");
 return 0;
 }
 
+//ABSOLUTE DIFFERENCE
 int absDiff (Mat img1, Mat img2)
 {
 int i, j, k;
@@ -134,13 +138,14 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "|A - B|", WINDOW_AUTOSIZE );
+imshow( "|A - B|", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("|A - B|");
 return 0;
 }
 
+//COMPLEMENTING THE IMAGE(NEGATIVE)
 int complementImg 	(Mat img1)
 {
 int i, j, k;
@@ -158,13 +163,14 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "255 - A", WINDOW_AUTOSIZE );
+imshow( "255 - A", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("255 - A");
 return 0;
 }
 
+//DIVIDE 2 IMAGES
 int Divide2Img (Mat img1, Mat img2)
 {
 int i, j, k;
@@ -185,13 +191,13 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "A/B", WINDOW_AUTOSIZE );
+imshow( "A/B", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("A/B");
 return 0;
 }
-
+//DIVIDE IMAGE BY CONSTANT
 int DivideImgConst (Mat img1)
 {
 int i, j, k;
@@ -209,13 +215,14 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "A/k", WINDOW_AUTOSIZE );
+imshow( "A/k", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("A/k");
 return 0;
 }
 
+//MULTIPLY IMAGE BY CONSTANT
 int MultiplyImgConst (Mat img1)
 {
 int i, j, k;
@@ -233,13 +240,14 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "A*k", WINDOW_AUTOSIZE );
+imshow( "A*k", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("A*k");
 return 0;
 }
 
+//SUBTRACT CONSTANT FROM IMAGE
 int SubImgConst (Mat img1)
 {
 int i, j, k;
@@ -257,9 +265,9 @@ for (i = 0; i<s1.height; i++)
         }
     }
 
-namedWindow( "A+B", WINDOW_AUTOSIZE );
-imshow( "A+B", img3);
+namedWindow( "A-k", WINDOW_AUTOSIZE );
+imshow( "A-k", img3);
 waitKey(0);
-destroyWindow("A+B");
+destroyWindow("A-k");
 return 0;
 }
