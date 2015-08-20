@@ -17,6 +17,12 @@ int absDiff (Mat img1, Mat img2);
 
 int Divide2Img (Mat img1, Mat img2);
 
+int Lcombination(Mat img1, Mat img2);
+
+int SubImage(Mat img1, Mat img2);
+
+int MultiplyImage(Mat img1, Mat img2);
+
 int addConstantImg (Mat img1);
 
 int complementImg (Mat img1);
@@ -60,6 +66,12 @@ int main( int argc, char** argv )
     absDiff(img1, img2);
 
     Divide2Img(img1, img2);
+
+    Lcombination(img1,img2);
+
+    MultiplyImage(img1, img2);
+
+    SubImage(img1, img2);
 
     addConstantImg(img1);
 
@@ -229,7 +241,7 @@ int Lcombination (Mat img1, Mat img2)
         for (j = 0; j<s1.width; j++)
         {
             if(img2.at<uchar>(i, j) != 0){
-                k = a(img1.at<uchar>(i, j)) +  b(img2.at<uchar>(i, j));
+                k = a*(img1.at<uchar>(i, j)) +  b*(img2.at<uchar>(i, j));
             }
             //CHECK BOTH >255 AND <0 BECAUSE a,b CAN BE +VE AND -VE BOTH
             if (k < 0 ) {k=0;}
@@ -242,6 +254,66 @@ int Lcombination (Mat img1, Mat img2)
     imshow( "xA + yB", img3);
     waitKey(0);
     destroyWindow("xA + yB");
+    return 0;
+}
+
+//SUBTRACT 2 IMAGES
+int SubImage (Mat img1, Mat img2)
+{
+    int i, j, k;
+    Size s1, s2;
+    s1 = img1.size();
+    s2 = img2.size();
+    if ( !(s1.height==s2.height && s1.width==s2.width) )
+    { cout<<"Incompatible images for arithmetic operations"<<endl; return -1;}
+
+    Mat img3 = Mat::ones(s1.height, s1.width, CV_8UC1);
+    for (i = 0; i<s1.height; i++)
+    {
+        for (j = 0; j<s1.width; j++)
+        {
+            if(img2.at<uchar>(i, j) != 0){
+                k = (img1.at<uchar>(i, j)) -  (img2.at<uchar>(i, j));
+            }
+            if (k < 0 ) {k=0;}
+            img3.at<uchar>(i, j) = k;
+        }
+    }
+
+    namedWindow( "A - B", WINDOW_AUTOSIZE );
+    imshow( "A - B", img3);
+    waitKey(0);
+    destroyWindow("A - B");
+    return 0;
+}
+
+//MULTIPLY 2 IMAGES
+int MultiplyImage (Mat img1, Mat img2)
+{
+    int i, j, k;
+    Size s1, s2;
+    s1 = img1.size();
+    s2 = img2.size();
+    if ( !(s1.height==s2.height && s1.width==s2.width) )
+    { cout<<"Incompatible images for arithmetic operations"<<endl; return -1;}
+
+    Mat img3 = Mat::ones(s1.height, s1.width, CV_8UC1);
+    for (i = 0; i<s1.height; i++)
+    {
+        for (j = 0; j<s1.width; j++)
+        {
+            if(img2.at<uchar>(i, j) != 0){
+                k = (img1.at<uchar>(i, j)) *  (img2.at<uchar>(i, j));
+            }
+            if (k > 255 ) {k=255;}
+            img3.at<uchar>(i, j) = k;
+        }
+    }
+
+    namedWindow( "A * B", WINDOW_AUTOSIZE );
+    imshow( "A * B", img3);
+    waitKey(0);
+    destroyWindow("A * B");
     return 0;
 }
 
