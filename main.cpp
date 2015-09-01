@@ -11,80 +11,109 @@
 using namespace cv;
 using namespace std;
 
-int addImg (Mat img1, Mat img2);
-
-int absDiff (Mat img1, Mat img2);
-
-int Divide2Img (Mat img1, Mat img2);
-
-int Lcombination(Mat img1, Mat img2);
-
-int SubImage(Mat img1, Mat img2);
-
-int MultiplyImage(Mat img1, Mat img2);
-
-int addConstantImg (Mat img1);
-
-int complementImg (Mat img1);
-
-int DivideImgConst (Mat img1);
-
-int MultiplyImgConst (Mat img1);
-
-int SubImgConst (Mat img1);
-
-int main( int argc, char** argv )
+int scaleImage (Mat img1);
+vector<int> multiply_Matrices(int a, int b, int c, int d, int tx, int ty, int x, int y);
+int c_x=0;
+int c_y=0;
+int r[3][1];
+int main()
 {
-    int i, j, k;
+    Mat img1;
+    img1 = imread("/home/mwason/IAAssignment0/2.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 
-    if( argc != 3)
-    {cout << "Usage: display_image Image_1 Image_2" << endl; return -1;}
-
-    Mat img1, img2, img3;
-    img1 = imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
-    img2 = imread(argv[2], CV_LOAD_IMAGE_GRAYSCALE);
-
-    if ( !img1.data || !img2.data)
+    if ( !img1.data )
     { cout <<  "Could not open or find the image" << endl ; return -1;}
 
-    cout<<"Please press ENTER after an image is shown.\nDoing so will show the next image.";
-    cout<<"\nPress ENTER!";
-    waitKey(0);
 
-    namedWindow(argv[1], WINDOW_AUTOSIZE);
-    imshow(argv[1], img1);
-    waitKey(0);
-    destroyWindow(argv[1]);
+           namedWindow("image", WINDOW_AUTOSIZE);
+           imshow("image", img1);
+         waitKey(0);
+//    //        destroyWindow(argv[1]);
 
-    namedWindow(argv[2], WINDOW_AUTOSIZE);
-    imshow(argv[2], img2);
-    waitKey(0);
-    destroyWindow(argv[2]);
+    scaleImage(img1);
 
-    addImg(img1, img2);
-
-    absDiff(img1, img2);
-
-    Divide2Img(img1, img2);
-
-    Lcombination(img1,img2);
-
-    MultiplyImage(img1, img2);
-
-    SubImage(img1, img2);
-
-    addConstantImg(img1);
-
-    complementImg(img1);
-
-    DivideImgConst(img1);
-
-    MultiplyImgConst(img1);
-
-    SubImgConst(img1);
 
 
     return 0;
+}
+
+bool check(int x,int y,Mat image)
+{
+    cout<<"\n x-,y- "<<x<<","<<y;
+    if((image.rows>=x&&image.cols>=y)&&(x>=0&&y>=0))
+        return true;
+    return false;
+}
+
+int scaleImage(Mat img1)
+{
+    int i, j, k;
+
+    Mat img3 = Mat::zeros(img1.rows, img1.cols, img1.type());
+    float xScale;
+    float yScale;
+
+    cout<<"enter x translation"<<endl;
+    cin>>xScale;
+
+    cout<<"enter y translation"<<endl;
+    cin>>yScale;
+
+    cout<<"x,y "<< xScale << ","<< yScale <<endl;
+    for (i = 0; i<img1.rows; i++)
+    {
+        for (j = 0; j<img1.cols; j++)
+        {
+            cout<<"\n x,y "<<i<<","<<j;
+           vector<int> points= multiply_Matrices(xScale, 0, 0,yScale, 0, 0, i, j);
+            k = img1.at<uchar>(i, j);
+            if(check(points.at(0),points.at(1),img1))
+              img3.at<uchar>(points.at(0),points.at(1)) = k;
+        }
+    }
+
+    namedWindow( "ANS", WINDOW_AUTOSIZE );
+    imshow( "ANS", img3);
+    waitKey();
+    //destroyWindow("ANS");
+    return 0;
+}
+
+vector<int> multiply_Matrices(int a, int b, int c, int d, int tx, int ty, int x, int y){
+    int m1[3][3], m2[3][1];
+    vector<int> points;
+    m1[0][0] = a;
+    m1[0][1] = b;
+    m1[0][2] = tx;
+    m1[1][0] = c;
+    m1[1][1] = d;
+    m1[1][2] = ty;
+    m1[2][0] = 0;
+    m1[2][1] = 0;
+    m1[2][2] = 1;
+
+    m2[0][0] = x;
+    m2[1][0] = y;
+    m2[2][0] = 1;
+    int i,j;
+
+    for(i=0;i<3;i++)
+    {
+        for(j=0;j<1;j++)
+        {
+            r[i][j]=0;
+            for(int k=0;k<3;k++)
+            {
+                r[i][j]=r[i][j]+m1[i][k]*m2[k][j];
+            }
+        }
+    }
+
+
+    points.push_back(r[0][0]);
+    points.push_back(r[1][0]);
+
+    return points;
 }
 
 // ADD TWO IMAGES
@@ -391,3 +420,5 @@ int SubImgConst (Mat img1)
     destroyWindow("A-k");
     return 0;
 }
+
+
