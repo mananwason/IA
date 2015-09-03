@@ -7,41 +7,145 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
+#define PI 3.14159265
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace cv;
 using namespace std;
 
 int scaleImage (Mat img1);
-vector<int> multiply_Matrices(int a, int b, int c, int d, int tx, int ty, int x, int y);
+int rotateImg(Mat img1);
+int translateImage(Mat img1);
+int showCumulative(Mat img1);
+int complementImg(Mat img1);
+int gammaTransform(Mat img1, float gamma, float c);
+int contrastStrech(Mat img1, float a, float b, float c, float d);
+void showHistogram(Mat& img1);
+
+
+vector<float> multiply_Matrices(float a, float b, float c, float d, float tx, float ty, float x, float y);
 int c_x=0;
 int c_y=0;
 int r[3][1];
+
 int main()
 {
-    Mat img1;
-    img1 = imread("/home/mwason/IAAssignment0/2.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat img1, img2;
+    img1 = imread("/home/mwason/IAOpenCv/lena.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 
     if ( !img1.data )
     { cout <<  "Could not open or find the image" << endl ; return -1;}
 
 
-           namedWindow("image", WINDOW_AUTOSIZE);
-           imshow("image", img1);
-         waitKey(0);
-//    //        destroyWindow(argv[1]);
+    namedWindow("image", WINDOW_AUTOSIZE);
+    imshow("image", img1);
+    waitKey(0);
+    destroyWindow("image");
+    cout<<"\t\t\t\tEnter";
+    cout<<"\n\n1)Scale\n2)Translation\n3)Rotation\n4)Histogram or Cumulative\n5)Transformations";
+    int option,option1 = 0;
+    cout<<"\n\nEnter selection"<<endl;
+    cin>>option;
+    switch(option)
+    {
+    case 1 :
+        scaleImage(img1);
+        break;
+    case 2 :
+        translateImage(img1);
+        break;
+    case 3 :
+        rotateImg(img1);
+        break;
+    case 4 :
+    {cout<<"\n\n1)Histogram\n2)Cumulative";
+        cout<<"\nEnter selection"<<endl;
+        cin>>option1;
+        switch(option1)
+        {
+        case 1 :
+            img2 = imread("/home/mwason/IAOpenCv/lena.jpg");
+            if (img2.empty())
+                return -1;
+            showHistogram(img2);
+            imshow("src", img2);
+            waitKey(0);
+            break;
 
-    scaleImage(img1);
+        case 2:
+            img2 = imread("/home/mwason/IAOpenCv/lena.jpg");
+            imshow("src", img2);
+            waitKey(0);
+            if (img2.empty())
+                return -1;
+            showCumulative(img2);
 
+            break;}
+        break;}
+    case 5:
+        cout<<"\n\n1)Negative\n2)Gamma\n3)Contrast stretching";
+        cout<<"\nEnter selection"<<endl;
+        cin>>option1;
+        switch(option1)
+        {
+        case 1 :
+        {
+            img2 = imread("/home/mwason/IAOpenCv/lena.jpg");
+            imshow("src", img2);
+            waitKey(0);
+            complementImg(img2);
 
+            break;
+        }
+        case 2 :
+        {
+            float gamma;
+            float constant;
+            cout<<"\nEnter Gamma"<<endl;
+            cin>>gamma;
+            cout<<"\nEnter c"<<endl;
+            cin>>constant;
+            img2 = imread("/home/mwason/IAOpenCv/lena.jpg");
+            imshow("src", img2);
+            waitKey(0);
+            gammaTransform(img2,gamma,constant);
 
+            break;
+        }
+        case 3 :
+        {
+            float a,b,c,d;
+            float constant;
+            cout<<"\nEnter a"<<endl;
+            cin>>a;
+            cout<<"\nEnter b"<<endl;
+            cin>>b;
+            cout<<"\nEnter c"<<endl;
+            cin>>c;
+            cout<<"\nEnter d"<<endl;
+            cin>>d;
+            img2 = imread("/home/mwason/IAOpenCv/lena.jpg");
+            imshow("src", img2);
+            waitKey(0);
+            contrastStrech(img2, a, b,c, d);
+            break;
+        }
+
+        }
+    default :
+        cout << "Invalid" << endl;
+    }
     return 0;
 }
+
 
 bool check(int x,int y,Mat image)
 {
     cout<<"\n x-,y- "<<x<<","<<y;
     if((image.rows>=x&&image.cols>=y)&&(x>=0&&y>=0))
-        return true;
+    {cout<<"\n x1-,y1- "<<x<<","<<y;
+        return true;}
     return false;
 }
 
@@ -50,13 +154,15 @@ int scaleImage(Mat img1)
     int i, j, k;
 
     Mat img3 = Mat::zeros(img1.rows, img1.cols, img1.type());
+
+
     float xScale;
     float yScale;
 
-    cout<<"enter x translation"<<endl;
+    cout<<"\nenter x scaling"<<endl;
     cin>>xScale;
 
-    cout<<"enter y translation"<<endl;
+    cout<<"\nenter y sclaing"<<endl;
     cin>>yScale;
 
     cout<<"x,y "<< xScale << ","<< yScale <<endl;
@@ -65,23 +171,91 @@ int scaleImage(Mat img1)
         for (j = 0; j<img1.cols; j++)
         {
             cout<<"\n x,y "<<i<<","<<j;
-           vector<int> points= multiply_Matrices(xScale, 0, 0,yScale, 0, 0, i, j);
+            vector<float> points= multiply_Matrices(xScale, 0, 0,yScale, 0, 0, i, j);
             k = img1.at<uchar>(i, j);
             if(check(points.at(0),points.at(1),img1))
-              img3.at<uchar>(points.at(0),points.at(1)) = k;
+                img3.at<uchar>(points.at(0),points.at(1)) = k;
+        }
+    }
+
+    namedWindow( "ANS", WINDOW_AUTOSIZE );
+    imshow( "ANS", img3);
+    waitKey(0);
+    destroyWindow("ANS");
+    return 0;
+}
+
+int translateImage(Mat img1)
+{
+    int i, j;
+    double k;
+
+
+    float xTranslation;
+    float yTranslation;
+
+    cout<<"\nenter x translation"<<endl;
+    cin>>xTranslation;
+
+    cout<<"\nenter y translation"<<endl;
+    cin>>yTranslation;
+    Mat img3 = Mat::zeros(img1.rows+xTranslation, img1.cols+yTranslation, img1.type());
+
+    cout<<"x,y "<< xTranslation << ","<< yTranslation <<endl;
+    for (i = 0; i<img1.rows; i++)
+    {
+        for (j = 0; j<img1.cols; j++)
+        {
+            cout<<"\n x,y "<<i<<","<<j;
+            img3.at<uchar>(i+xTranslation, j+yTranslation) = img1.at<uchar>(i, j);
         }
     }
 
     namedWindow( "ANS", WINDOW_AUTOSIZE );
     imshow( "ANS", img3);
     waitKey();
-    //destroyWindow("ANS");
+    destroyWindow("ANS");
     return 0;
 }
 
-vector<int> multiply_Matrices(int a, int b, int c, int d, int tx, int ty, int x, int y){
-    int m1[3][3], m2[3][1];
-    vector<int> points;
+int rotateImg(Mat img1)
+{
+    int i, j, k;
+
+    Mat img3 = Mat::zeros(img1.rows, img1.cols, img1.type());
+    float degrees, sine, cosine;
+
+    cout<<"\nenter rotation angle"<<endl;
+    cin>>degrees;
+
+    sine = sin(degrees * PI/180.0);
+
+    cosine = cos(degrees * PI/180.0);
+
+    cout<<"angle "<< degrees <<"sin "<<sine<<" cos"<<cosine<<endl;
+    for (i = 0; i<img1.rows; i++)
+    {
+        for (j = 0; j<img1.cols; j++)
+        {
+            cout<<"\n x,y "<<i<<","<<j;
+            vector<float> points= multiply_Matrices(cosine, -sine, sine,cosine, 0, 0, i, j);
+            k = img1.at<uchar>(i, j);
+            cout<<"\n a,b "<<points.at(0)<<", "<<points.at(1);
+            if(check(points.at(0),points.at(1),img1))
+                img3.at<uchar>(points.at(0),points.at(1)) = k;
+        }
+    }
+
+    namedWindow( "ANS", WINDOW_AUTOSIZE );
+    imshow( "ANS", img3);
+    waitKey(0);
+    destroyWindow("ANS");
+    return 0;
+}
+
+vector<float> multiply_Matrices(float a, float b, float c, float d, float tx, float ty, float x, float y){
+    float m1[3][3], m2[3][1];
+    vector<float> points;
     m1[0][0] = a;
     m1[0][1] = b;
     m1[0][2] = tx;
@@ -197,21 +371,143 @@ int absDiff (Mat img1, Mat img2)
     return 0;
 }
 
+void showHistogram(Mat& img)
+{
+    int bins = 256;
+    int nc = img.channels();
+    vector<Mat> hist(nc);
+    for (int i = 0; i < hist.size(); i++)
+        hist[i] = Mat::zeros(1, bins, CV_32SC1);
+
+    for (int i = 0; i < img.rows; i++)
+    {
+        for (int j = 0; j < img.cols; j++)
+        {
+            for (int k = 0; k < nc; k++)
+            {
+                uchar val = nc == 1 ? img.at<uchar>(i,j) : img.at<Vec3b>(i,j)[k];
+                hist[k].at<int>(val) += 1;
+            }
+        }
+    }
+
+    int hmax[3] = {0,0,0};
+    for (int i = 0; i < nc; i++)
+    {
+        for (int j = 0; j < bins-1; j++)
+            hmax[i] = hist[i].at<int>(j) > hmax[i] ? hist[i].at<int>(j) : hmax[i];
+    }
+
+    const char* wname[3] = { "blue", "green", "red" };
+    Scalar colors[3] = { Scalar(255,0,0), Scalar(0,255,0), Scalar(0,0,255) };
+
+    vector<Mat> canvas(nc);
+    for (int i = 0; i < nc; i++)
+    {
+        canvas[i] = Mat::ones(125, bins, CV_8UC3);
+
+        for (int j = 0, rows = canvas[i].rows; j < bins-1; j++)
+        {
+            line(
+                        canvas[i],
+                        Point(j, rows),
+                        Point(j, rows - (hist[i].at<int>(j) * rows/hmax[i])),
+                        nc == 1 ? Scalar(200,200,200) : colors[i],
+                        1, 8, 0
+                        );
+        }
+
+        imshow(nc == 1 ? "value" : wname[i], canvas[i]);
+    }
+}
+
+int showCumulative(Mat img)
+{
+    int bins = 256;
+    int nc = img.channels();
+
+    vector<Mat> hist(nc);
+    for (int i = 0; i < hist.size(); i++)
+        hist[i] = Mat::zeros(1, bins, CV_32SC1);
+
+    for (int i = 0; i < img.rows; i++)
+    {
+        for (int j = 0; j < img.cols; j++)
+        {
+            for (int k = 0; k < nc; k++)
+            {
+                uchar val = nc == 1 ? img.at<uchar>(i,j) : img.at<Vec3b>(i,j)[k];
+                hist[k].at<int>(val) += 1;
+            }
+        }
+    }
+
+    for (int i = 1; i < 256; i++)
+    {
+        for (int k = 0; k < nc; k++)
+        {
+
+            hist[k].at<int>(i) =hist[k].at<int>(i)+hist[k].at<int>(i-1);
+        }
+    }
+
+
+
+    int hmax[3] = {0,0,0};
+    for (int i = 0; i < nc; i++)
+    {
+        for (int j = 0; j < bins-1; j++)
+            hmax[i] = hist[i].at<int>(j) > hmax[i] ? hist[i].at<int>(j) : hmax[i];
+    }
+
+    const char* wname[3] = { "blue", "green", "red" };
+    Scalar colors[3] = { Scalar(255,0,0), Scalar(0,255,0), Scalar(0,0,255) };
+
+    vector<Mat> canvas(nc);
+
+    // Display each histogram in a canvas
+    for (int i = 0; i < nc; i++)
+    {
+        canvas[i] = Mat::ones(125, bins, CV_8UC3);
+
+        for (int j = 0, rows = canvas[i].rows; j < bins-1; j++)
+        {
+            line(
+                        canvas[i],
+                        Point(j, rows),
+                        Point(j, rows - (hist[i].at<int>(j) * rows/hmax[i])),
+                        nc == 1 ? Scalar(200,200,200) : colors[i],
+                        1, 8, 0
+                        );
+        }
+        imshow(nc == 1 ? "value" : wname[i], canvas[i]);
+    }
+}
+
 //COMPLEMENTING THE IMAGE(NEGATIVE)
 int complementImg 	(Mat img1)
 {
-    int i, j, k;
+    int i, j;
+    int red,green, blue;
     Size s1;
     s1 = img1.size();
 
-    Mat img3 = Mat::ones(s1.height, s1.width, CV_8UC1);
+    Mat img3 = Mat::ones(s1.height, s1.width, img1.type());
     for (i = 0; i<s1.height; i++)
     {
         for (j = 0; j<s1.width; j++)
         {
-            k = 255 - img1.at<uchar>(i, j);
-            if (k < 0) {k=0;}
-            img3.at<uchar>(i, j) = k;
+            red = 255 - img1.at<Vec3b>(i, j)[0];
+            green = 255 - img1.at<Vec3b>(i, j)[1];
+            blue = 255 - img1.at<Vec3b>(i, j)[2];
+
+            if (red < 0) {red=0;}
+            if (blue < 0) {blue=0;}
+            if (green < 0) {green=0;}
+            img3.at<Vec3b>(i, j)[0]= red;
+            img3.at<Vec3b>(i, j)[1]= green;
+            img3.at<Vec3b>(i, j)[2]= blue;
+
         }
     }
 
@@ -222,6 +518,77 @@ int complementImg 	(Mat img1)
     return 0;
 }
 
+int gammaTransform 	(Mat img1, float gamma, float c)
+{
+    int i, j;
+    float red,green, blue;
+    Size s1;
+    s1 = img1.size();
+
+    Mat img3 = Mat::ones(s1.height, s1.width, img1.type());
+    for (i = 0; i<s1.height; i++)
+    {
+        for (j = 0; j<s1.width; j++)
+        {
+            red = c*(pow((double)(img1.at<Vec3b>(i, j)[0]/255.0),(double)gamma));
+            green = c*(pow((double)(img1.at<Vec3b>(i, j)[1]/255.0),(double)gamma));
+            blue = c*(pow((double)(img1.at<Vec3b>(i, j)[2]/255.0),(double)gamma));
+
+            cout<<"\nr,g,b "<<red<<", "<<green<<", "<<blue;
+            if (red < 0) {red=0;}
+            if (blue < 0) {blue=0;}
+            if (green < 0) {green=0;}
+            img3.at<Vec3b>(i, j)[0]= red*255;
+            img3.at<Vec3b>(i, j)[1]= green*255;
+            img3.at<Vec3b>(i, j)[2]= blue*255;
+
+        }
+    }
+
+    namedWindow( "Gamma", WINDOW_AUTOSIZE );
+    imshow( "Gamma", img3);
+    waitKey(0);
+    destroyWindow("Gamma");
+    return 0;
+}
+
+int contrastStrech 	(Mat img1, float a, float b, float c, float d)
+{
+    int i, j;
+    float red,green, blue;
+    Size s1;
+    s1 = img1.size();
+
+    Mat img3 = Mat::ones(s1.height, s1.width, img1.type());
+    for (i = 0; i<s1.height; i++)
+    {
+        for (j = 0; j<s1.width; j++)
+        {
+            red = (((img1.at<Vec3b>(i, j)[0]) -c)*((b-a)/(d-c))) + a;
+            green = (((img1.at<Vec3b>(i, j)[1]) -c)*((b-a)/(d-c))) + a;
+            blue = (((img1.at<Vec3b>(i, j)[2]) -c)*((b-a)/(d-c))) + a;
+
+            cout<<"\nr,g,b "<<red<<", "<<green<<", "<<blue;
+            if (red > 0) {red=255;}
+            if (blue > 0) {blue=255;}
+            if (green > 0) {green=255;}
+            if (red < 0) {red=0;}
+            if (blue < 0) {blue=0;}
+            if (green < 0) {green=0;}
+            cout<<"red"<<red*255;
+            img3.at<Vec3b>(i, j)[0]= red;
+            img3.at<Vec3b>(i, j)[1]= green;
+            img3.at<Vec3b>(i, j)[2]= blue;
+
+        }
+    }
+
+    namedWindow( "contrast", WINDOW_AUTOSIZE );
+    imshow( "contrast", img3);
+    waitKey(0);
+    destroyWindow("contrast");
+    return 0;
+}
 //DIVIDE 2 IMAGES
 int Divide2Img (Mat img1, Mat img2)
 {
@@ -251,6 +618,7 @@ int Divide2Img (Mat img1, Mat img2)
     destroyWindow("A/B");
     return 0;
 }
+
 
 //LINEAR COMBINATION
 int Lcombination (Mat img1, Mat img2)
